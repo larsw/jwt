@@ -12,6 +12,8 @@ namespace JWT.Algorithms
         /// <param name="bytesToSign">The data to sign.</param>
         byte[] Sign(byte[] key, byte[] bytesToSign);
 
+        bool Verify(byte[] bytesToVerify, byte[] signature);
+
         /// <summary>
         /// Gets algorithm name.
         /// </summary>

@@ -5,6 +5,17 @@ using System.Text;
 
 namespace JWT
 {
+    public class JwtValidatorOptions
+    {
+        public bool ValidateExpiration { get; set; } = true;
+        public bool ValidateNotBefore { get; set; } = true;
+        public bool ValidateIssuer { get; set; } = true;
+        public bool ValidateAudience { get; set; } = true;
+
+        public Func<string, bool> IssuerValidator { get; set; } = (issuer) => false;
+        public Func<string, bool> AudienceValidator { get; set; } = (audience) => false;
+    }
+
     /// <summary>
     /// Jwt validator.
     /// </summary>
@@ -12,22 +23,24 @@ namespace JWT
     {
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private JwtValidatorOptions _options;
 
         /// <summary>
         /// Creates an instance of <see cref="JwtValidator" />.
         /// </summary>
         /// <param name="jsonSerializer">The Json Serializer.</param>
         /// <param name="dateTimeProvider">The DateTime Provider.</param>
-        public JwtValidator(IJsonSerializer jsonSerializer, IDateTimeProvider dateTimeProvider)
+        public JwtValidator(IJsonSerializer jsonSerializer, IDateTimeProvider dateTimeProvider, JwtValidatorOptions options = null)
         {
             _jsonSerializer = jsonSerializer;
             _dateTimeProvider = dateTimeProvider;
+            _options = options ?? new JwtValidatorOptions();
         }
 
         /// <inheritdoc />
         /// <exception cref="ArgumentException" />
         /// <exception cref="SignatureVerificationException" />
-        public void Validate(string payloadJson, string decodedCrypto, string decodedSignature)
+        public void ValidateSymmetric(string payloadJson, string decodedCrypto, string decodedSignature)
         {
             if (String.IsNullOrWhiteSpace(payloadJson))
                 throw new ArgumentException(nameof(payloadJson));
@@ -46,19 +59,42 @@ namespace JWT
                     Received = decodedSignature
                 };
             }
+            ValidatePayload(payloadJson);
+        }
+
+        public void ValidatePayload(string payloadJson)
+        {
+            if (String.IsNullOrWhiteSpace(payloadJson))
+                throw new ArgumentException(nameof(payloadJson));
 
             var payloadData = _jsonSerializer.Deserialize<Dictionary<string, object>>(payloadJson);
 
             var now = _dateTimeProvider.GetNow();
             var secondsSinceEpoch = UnixEpoch.GetSecondsSince(now);
 
-            ValidateExpClaim(payloadData, secondsSinceEpoch);
-            ValidateNbfClaim(payloadData, secondsSinceEpoch);
+            if (_options.ValidateExpiration)
+            {
+                ValidateExpClaim(payloadData, secondsSinceEpoch);
+            }
+
+            if (_options.ValidateNotBefore)
+            {
+                ValidateNbfClaim(payloadData, secondsSinceEpoch);
+            }
+
+            if (_options.ValidateAudience)
+            {
+                _options.AudienceValidator(payloadData["aud"] as string);
+            }
+            if (_options.ValidateIssuer)
+            {
+                _options.IssuerValidator(payloadData["iss"] as string);
+            }
         }
 
         private static bool AreAllDecodedSignaturesNullOrWhiteSpace(string[] decodedSignatures)
         {
-            return decodedSignatures.All(sgn => String.IsNullOrWhiteSpace(sgn));
+            return decodedSignatures.All(string.IsNullOrWhiteSpace);
         }
 
         private static bool IsAnySignatureValid(string decodedCrypto, string[] decodedSignatures)
@@ -69,7 +105,7 @@ namespace JWT
         /// <inheritdoc />
         /// <exception cref="ArgumentException" />
         /// <exception cref="SignatureVerificationException" />
-        public void Validate(string payloadJson, string decodedCrypto, string[] decodedSignatures)
+        public void ValidateSymmetric(string payloadJson, string decodedCrypto, string[] decodedSignatures)
         {
             if (String.IsNullOrWhiteSpace(payloadJson))
                 throw new ArgumentException(nameof(payloadJson));
@@ -94,8 +130,7 @@ namespace JWT
             var now = _dateTimeProvider.GetNow();
             var secondsSinceEpoch = UnixEpoch.GetSecondsSince(now);
 
-            ValidateExpClaim(payloadData, secondsSinceEpoch);
-            ValidateNbfClaim(payloadData, secondsSinceEpoch);
+            ValidatePayload(payloadJson);
         }
 
         /// <remarks>In the future this method can be opened for extension so made protected virtual</remarks>

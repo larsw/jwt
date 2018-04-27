@@ -1,4 +1,42 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\JWT.Tests.Common\Internal\CustomerEqualityComparer.cs" Link="Internal\CustomerEqualityComparer.cs" />
+    <Compile Include="..\JWT.Tests.Common\Internal\DictionaryEqualityComparer.cs" Link="Internal\DictionaryEqualityComparer.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtBuilderDecodeTest.cs" Link="JwtBuilderDecodeTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtBuilderEncodeTest.cs" Link="JwtBuilderEncodeTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtDataTest.cs" Link="JwtDataTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtDecoderTest.cs" Link="JwtDecoderTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtEncoderTest.cs" Link="JwtEncoderTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\JwtSecurityTest.cs" Link="JwtSecurityTest.cs" />
+    <Compile Include="..\JWT.Tests.Common\Models\Customer.cs" Link="Models\Customer.cs" />
+    <Compile Include="..\JWT.Tests.Common\Models\TestCategory.cs" Link="Models\TestCategory.cs" />
+    <Compile Include="..\JWT.Tests.Common\Models\TestData.cs" Link="Models\TestData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.analyzers" Version="0.8.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\JWT\JWT.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Internal\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+</Project>
+
+<!--<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="..\..\packages\xunit.core.2.3.1\build\xunit.core.props" Condition="Exists('..\..\packages\xunit.core.2.3.1\build\xunit.core.props')" />
@@ -105,4 +143,4 @@
     <Error Condition="!Exists('..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\xunit.runner.visualstudio.2.3.1\build\net20\xunit.runner.visualstudio.props'))" />
   </Target>
   <Import Project="..\..\packages\xunit.core.2.3.1\build\xunit.core.targets" Condition="Exists('..\..\packages\xunit.core.2.3.1\build\xunit.core.targets')" />
-</Project>
+</Project>-->

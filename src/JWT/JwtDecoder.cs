@@ -190,7 +190,7 @@ namespace JWT
         }
 
         /// <summary>
-        /// Prepares data before calling <see cref="IJwtValidator.Validate(string,string,string)" />.
+        /// Prepares data before calling <see cref="IJwtValidator.ValidateSymmetric" />.
         /// </summary>
         /// <param name="parts">The array representation of a JWT.</param>
         /// <param name="key">The key that was used to sign the JWT.</param>
@@ -200,7 +200,7 @@ namespace JWT
         public void Validate(string[] parts, byte[] key) => Validate(new JwtParts(parts), key);
 
         /// <summary>
-        /// Prepares data before calling <see cref="IJwtValidator.Validate(string,string,string)" />.
+        /// Prepares data before calling <see cref="IJwtValidator.ValidateSymmetric" />.
         /// </summary>
         /// <param name="jwt">The JWT parts.</param>
         /// <param name="key">The key that was used to sign the JWT.</param>
@@ -216,8 +216,8 @@ namespace JWT
             if (key.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(key));
 
-            var crypto = _urlEncoder.Decode(jwt.Signature);
-            var decodedCrypto = Convert.ToBase64String(crypto);
+            var decodedSignature = _urlEncoder.Decode(jwt.Signature);
+            var decodedCrypto = Convert.ToBase64String(decodedSignature);
 
             var headerJson = GetString(_urlEncoder.Decode(jwt.Header));
             var headerData = _jsonSerializer.Deserialize<Dictionary<string, object>>(headerJson);
@@ -230,14 +230,26 @@ namespace JWT
             var algName = (string)headerData["alg"];
             var alg = _algFactory.Create(algName);
 
-            var signatureData = alg.Sign(key, bytesToSign);
-            var decodedSignature = Convert.ToBase64String(signatureData);
+            if (alg.IsAsymmetric)
+            {
+                if (alg.Verify(bytesToSign, decodedSignature) == false)
+                {
+                    throw new SignatureVerificationException("Signature verification failed.");
+                }
 
-            _jwtValidator.Validate(payloadJson, decodedCrypto, decodedSignature);
+                _jwtValidator.ValidatePayload(payloadJson);
+            }
+            else
+            {
+                var signatureData = alg.Sign(key, bytesToSign);
+                var base64EncodedSignature = Convert.ToBase64String(signatureData);                
+                _jwtValidator.ValidateSymmetric(payloadJson, decodedCrypto, base64EncodedSignature);
+            }
+
         }
 
         /// <summary>
-        /// Prepares data before calling <see cref="IJwtValidator.Validate(string,string,string[])" />.
+        /// Prepares data before calling <see cref="IJwtValidator.ValidateSymmetric(string,string,string[])" />.
         /// </summary>
         /// <param name="jwt">The JWT parts.</param>
         /// <param name="keys">The keys provided which one of them was used to sign the JWT.</param>
@@ -268,7 +280,7 @@ namespace JWT
             var alg = _algFactory.Create(algName);
 
             var decodedSignatures = keys.Select(key => alg.Sign(key, bytesToSign)).Select(sd => Convert.ToBase64String(sd)).ToArray();
-            _jwtValidator.Validate(payloadJson, decodedCrypto, decodedSignatures);
+            _jwtValidator.ValidateSymmetric(payloadJson, decodedCrypto, decodedSignatures);
         }
 
         private static byte[] GetBytes(string input) => Encoding.UTF8.GetBytes(input);

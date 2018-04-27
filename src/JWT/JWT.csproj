@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard1.4</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net46'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
     <TargetFrameworkIdentifier>.NETStandard</TargetFrameworkIdentifier>
   </PropertyGroup>
   
@@ -37,9 +37,11 @@
 
   <ItemGroup>
    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+   <PackageReference Include="System.Security.Cryptography.Cng" Version="4.4.0" />
+   <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
     <PackageReference Include="System.ComponentModel.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />

@@ -2,6 +2,8 @@
 
 namespace JWT.Algorithms
 {
+    using System;
+
     /// <summary>
     /// HMAC using SHA-256
     /// </summary>
@@ -14,6 +16,11 @@ namespace JWT.Algorithms
             {
                 return sha.ComputeHash(bytesToSign);
             }
+        }
+
+        public bool Verify(byte[] bytesToVerify, byte[] signature)
+        {
+            throw new InvalidOperationException();
         }
 
         /// <inheritdoc />

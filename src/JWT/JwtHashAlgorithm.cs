@@ -20,6 +20,10 @@
         /// <summary>
         /// RSASSA-PKCS1-v1_5 using SHA-256
         /// </summary>
-        RS256
+        RS256,
+        /// <summary>
+        /// ECDSA NIST p256 using SHA-256
+        /// </summary>
+        ES256
     }
 }

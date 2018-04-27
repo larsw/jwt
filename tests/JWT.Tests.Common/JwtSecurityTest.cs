@@ -7,6 +7,8 @@ using Xunit;
 
 namespace JWT.Tests.Common
 {
+    using System.Linq;
+
     public class JwtSecurityTest
     {
         [Fact]
@@ -73,6 +75,24 @@ namespace JWT.Tests.Common
             Action action = () => decoder.Decode(encodedToken, TestData.ServerRsaPublicKeys, verify: true);
 
             Assert.Throws<NotSupportedException>(action);
+        }
+
+        [Fact]
+        public void MyTestMethod()
+        {
+            var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            X509Certificate2 cert = null;
+            store.Open(OpenFlags.ReadOnly);
+            cert = store.Certificates.Find(X509FindType.FindByThumbprint, "c9b51b2fff7a0de4506836ff813dc225f0626209", false).Cast<X509Certificate2>()
+                .First();
+            store.Close();
+            var serializer = new JsonNetSerializer();
+            JwtBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
+            var encoder = new JwtEncoder(new CertES256Algorithm(cert), serializer, urlEncoder);
+            var encodedToken = encoder.Encode(TestData.Customer, new byte[]{});
+            var validator = new JwtValidator(serializer, new UtcDateTimeProvider());
+            var decoder = new JwtDecoder(serializer, validator, urlEncoder, new ESAlgorithmFactory(() => cert));
+            var customerPrime = decoder.DecodeToObject<Customer>(encodedToken, new byte[]{0}, true);
         }
     }
 }

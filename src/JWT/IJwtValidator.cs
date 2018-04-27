@@ -13,7 +13,7 @@
         /// <param name="decodedSignature">Decoded signature</param>
         /// <exception cref="SignatureVerificationException">The signature is invalid.</exception>
         /// <exception cref="TokenExpiredException">The token has expired.</exception>
-        void Validate(string payloadJson, string decodedCrypto, string decodedSignature);
+        void ValidateSymmetric(string payloadJson, string decodedCrypto, string decodedSignature);
         
         /// <summary>
         /// Given the JWT, verifies its signature correctness.
@@ -23,6 +23,8 @@
         /// <param name="decodedSignatures">Decoded signatures</param>
         /// <exception cref="SignatureVerificationException">The signature is invalid.</exception>
         /// <exception cref="TokenExpiredException">The token has expired.</exception>
-        void Validate(string payloadJson, string decodedCrypto, string[] decodedSignatures);
+        void ValidateSymmetric(string payloadJson, string decodedCrypto, string[] decodedSignatures);
+
+        void ValidatePayload(string payloadJson);
     }
 }
